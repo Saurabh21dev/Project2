@@ -284,3 +284,25 @@ def licenseVnodamageResponce():
 
  
 mainmenu()
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+#for summarize data:
+
+dbutils.data.summarize(df1)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+#here we created dropdown for Driving License and Gender :
+
+df1.createOrReplaceTempView('persons')
+
+%sql
+create widget dropdown License default '1' choices select distinct Driving_License from persons
+
+create widget dropdown gender default 'Male' choices select distinct Gender from persons
+
+select * from persons where Gender='$gender'
+
+select * from persons where Driving_License='$License'
+
+
