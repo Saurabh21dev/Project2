@@ -1,0 +1,286 @@
+from pyspark import StorageLevel
+df1=spark.read.csv("dbfs:/FileStore/shared_uploads/poonampatil290499@gmail.com/train.csv",header=True)
+print("Title - Vehicle Insurance Analysis.")
+def mainmenu():
+    print("welcom to Vehicle Insurance Analysis.")
+    choice=0
+    while True:
+        print()
+        print("1.Enter 1 for view data from dataset")
+        print("2.Press 2 to view data in a given range")
+        print("3.Press 3 to view a specific customer")
+        print("4.Press 4 to view customer by age.")
+        print("5.Press 5 to view customer by gender .")
+        print("6.Press 6 to view customer by Driving License. ")
+        print("7.Press 7 to view customer are eligible and not eligible for vehicle insurance. ")
+        print("8.Press 8 to view customer by partitions. ")
+        print("9.Press 9 to filter the customers by there responce for insurance. ")
+        print("10.Press 10 to perform persist operation. ")
+        print("11.Press 11 for fetch by vintage.")
+        print("12.Press 12 for show the vehicle info.")
+        print("13.Press 13 for view previously insured customers. ")
+        print("14.Press 14 to view customers who have license,response and vehicle is good in condition : ")
+        print("15.Press 15 to exit.")
+        
+        
+        choice=int(input("Enter your option : "))        
+        if choice==1:
+            showdata()            
+        if choice==2:
+            showgivenrange()
+        if choice==3:
+            specificcustomer()   
+        if choice ==4:
+            agegroup()
+        if choice==5:
+            viewbygender()
+        if choice==6:
+            viewbyDriving_License()
+        if choice==7:
+            vehicle_age()
+        if choice==8:
+            partitiondataview()
+        if choice==9:
+            filterbyresponce()
+        if choice==10:
+            persistdf()
+        if choice==11:
+            vintageview()
+        if choice==12:
+            vehicleinfo()
+        if choice==13:
+            todisplaypreviously_insured()
+        if choice==14:
+            licenseVnodamageResponce()
+        if choice==15:
+            print("Thank you!")
+            break
+
+def showdata():
+    print("Number of customers in the dataset is : ",df1.count())
+    a=int(input("Enter the nomber of customers you want to view from above count : "))
+    while True:
+        if a<=df1.count():
+            df1.show(a)
+            break
+        else:
+            print("Enter the number from above count")
+            break
+            
+def showgivenrange():
+    print("Number of Customers in Dataset " , df1.count())
+    while True :
+            inp1 = int(input("Enter number from where you want to start viewing the data "))
+            inp2 = int(input("Enter number till where you want to view the data "))
+            op = (inp2+1) - inp1
+            if inp1 >= 1 and inp2 <= df1.count() :
+                df1.select("id" ,"Gender" ,"Age" , "Driving_License" , "Region_Code" , "Previously_Insured" ,"Vehicle_Age","Vehicle_Damage","Annual_Premium","Policy_Sales_Channel").filter((df1["id"] >= inp1) & (df1["id"] <= inp2)).show(op)
+                break
+            else :
+                print("Please enter in the avialable range ")
+                break
+                
+def specificcustomer():
+    inp=int(input("Enter customer ID to view :"))
+    df1.select("id" ,"Gender" ,"Age" , "Driving_License" , "Region_Code" , "Previously_Insured" ,"Vehicle_Age","Vehicle_Damage","Annual_Premium","Policy_Sales_Channel").filter(df1.id==inp).show()
+    
+def agegroup():
+    age = int(input("Enter age to view customers"))
+    c = df1.filter((df1["Age"] == age))
+    if c.count()>0:
+        df1.select("id" ,"Gender" ,"Age" , "Driving_License" , "Region_Code" , "Previously_Insured" ,"Vehicle_Age","Vehicle_Damage","Annual_Premium","Policy_Sales_Channel").filter(df1.Age == age).show()
+    else:
+        print('The entered  age group is not present in dataset')
+    
+def viewbygender():
+    df1.groupby('Gender').count().orderBy("count",asscending=True).show()
+    a=df1.filter(df1['Gender']=='Male')
+    b=df1.filter(df1['Gender']=='Female')
+    print("The number of male customers is : ",a.count())
+    print("The number of female customers is : ",b.count())
+    print()
+    print("Enter 1 for view data of male customers : ")
+    print("Enter 2 for view data of female customers : ")
+    print("Enter 3 for back to main menu : ")
+    while True :
+        ch=int(input("Enter your coice : "))
+        if ch==1:
+            inp1 = int(input("Enter number of Male customers you want to view the data "))
+            if inp1 <= a.count():
+                a.show(inp1)                
+            else:
+               print("Enter the number from above count")
+               break
+        elif ch==2:
+            inp2 = int(input("Enter number of Female customers you want to view the data "))
+            if inp2 <= b.count() :
+                b.show(inp2)                
+            else:
+                 print("Enter the number from above count")
+                 break
+        elif ch==3:
+                break
+        else:
+              print("Enter number from above count")
+              break
+        
+def viewbyDriving_License():
+    df1.groupby('Driving_License').count().orderBy("count",asscending=True).show()
+    a=df1.filter(df1['Driving_License']==1)
+    b=df1.filter(df1['Driving_License']==0)
+    print("The number of customers having Driving_License is : ",a.count())
+    print("The number of customers don't have Driving_License is : ",b.count())
+    print()
+    print("Enter 1 for view data of customers who have Driving_License : ")
+    print("Enter 2 for view data of customers who don't have Driving_License : ")
+    print("Enter 3 for back to main menu : ")
+    while True :
+        ch=int(input("Enter your coice : "))
+        if ch==1:
+            inp1 = int(input("Enter number of customers you want to view from the above count: "))
+            if inp1 <= a.count():
+                a.show(inp1)
+            else:
+               print("Enter the number from above count")
+               break
+        elif ch==2:
+            inp2 = int(input("Enter number of customers you want to view from the above count: "))
+            if inp2 <= b.count() :
+                b.show(inp2)
+            else:
+                 print("Enter the number from above count")
+                 break
+        elif  ch==3:
+              break
+        else:
+              print("Enter number from above count")
+              break
+            
+def  vehicle_age():
+    b=df1.filter(df1['Vehicle_Age']=='> 2 Years')
+    a=df1.filter(df1['Vehicle_Age']!='> 2 Years' )
+#     c=df1.filter(df1['Vehicle_Age']=='< 1 Year')
+    #d=b.count() + c.count()
+    print("Number of customers are eligible for Vehicle Insurance is : ",a.count())
+    print("Number of customers are not eligible for Vehicle Insurance is : ",b.count())
+    print("Enter 1 for view the customers are eligible for Vehicle Insurance.  ")
+    print("Enter 2 for view the customers are not eligible for Vehicle Insurance.  ")
+    print("Enter 3 for back to main menu : ")
+    while True :
+        ch=int(input("Enter your choice: "))
+        if ch==1:
+            inp1 = int(input("Enter number of customers you want to view from the above count: "))
+            if inp1 <= a.count():
+                a.show(inp1)
+            else:
+               print("Enter the number from above count")
+               break
+        elif ch==2:
+            inp2 = int(input("Enter number of customers you want to view from the above count: "))
+            if inp2 <= b.count() :
+                b.show(inp2)
+            else:
+                print("Enter the number from above count")
+                break
+        elif ch==3:
+            break                
+        else:
+              print("Enter number from above count")
+              break
+            
+def partitiondataview():
+    print("Enter 1 for partition by Gender.")
+    print("Enter 2 for partition by Driving_License.")
+    print("Enter 3 for partition by Vehicle_Age.")
+    print("Enter 4 for partition by Response.")
+    print("Enter 5 for partition by Age.")
+    print("Enter 6 for go to main menu.")
+    while True:
+        inp=int(input("enter op:"))
+        if inp==1:
+            df1.groupby('Gender').count().orderBy("count",asscending=True).show()
+        elif inp==2:
+            df1.groupby('Driving_License').count().orderBy("count",asscending=True).show()
+        elif inp==3:
+            df1.groupby('Vehicle_Age').count().orderBy("count",asscending=True).show()
+        elif inp==4:
+            df1.groupby('Response').count().orderBy("count",asscending=True).show()
+        elif inp==5:
+            df1.groupby('Age').count().orderBy("count",asscending=True).show()
+        elif inp==6:
+            break
+        else:
+            print("Enter value from above options!")
+
+def filterbyresponce():
+    d1=df1.filter(df1["Response"]=="1")
+    d2=d1.filter(df1["Gender"] == "Male")
+    d3=d1.filter(df1["Gender"] == "Female")
+    print('number of people who is having response for insurance ',d1.count())
+    print('number of male customers who is having response for insurance ',d2.count())             
+    print('number of female customers who is having response for insurance ',d3.count())
+    print("Enter 1 for male customers")
+    print("Enter 2 for male customers")
+    print("Enter 3 for main menu ")
+    while True:
+        ch=int(input("Enter your choice : "))
+        if ch==1:
+            inp=int(input("Enter number of customers to view : "))
+            if inp<=d2.count():
+                d2.show(inp)
+            else:
+                print("Enter number from above count ")
+        elif ch==2:
+            inp1=int(input("Enter number of customers to view : "))
+            if inp<=d3.count():
+                d3.show(inp1)
+            else:
+                print("Enter number from above count ")
+        elif ch==3:
+            break
+        else:
+            print("Enter number from above count !")
+    
+def persistdf():
+    result = df1.filter(df1['Response'] == "1")
+    result.persist(StorageLevel.DISK_ONLY)
+    result.show()
+    
+def vintageview():
+    inp = input("Enter vintage you want to view ")
+    df1.select("id","Gender" ,"Region_Code","Response").filter((df1["Vintage"] == inp)).show()
+    while True :
+            a = int(input("Enter number from where you want to start viewing the data "))
+            b = int(input("Enter number till where you want to view the data "))
+            op = (b+1) - a
+            if a >= 1 and b <= df1.count() :
+                df1.select('*').filter((df1["Vintage"] >= a) & (df1["Vintage"] <= b)).show(op)
+                break
+            else :
+                print("Please enter in the avialable range ")
+                break
+                
+def vehicleinfo():
+    c=df1.select("id","Age","Gender","Region_Code").filter(df1['Vehicle_Damage']=='Yes')
+    c.show()
+    
+def todisplaypreviously_insured():
+    c = df1.filter((df1["Previously_Insured"] ==1 ))
+    c.select("id","Age","Driving_License","Vehicle_Damage","Response").show()
+
+def licenseVnodamageResponce():
+    a=df1.select("id" ,"Gender" ,"Age" , "Driving_License" , "Region_Code" , "Previously_Insured" ,"Vehicle_Age","Vehicle_Damage","Annual_Premium","Policy_Sales_Channel").filter((df1["Driving_License"] ==1) & (df1["Vehicle_Damage"] == 'No')&(df1["Response"]==1))
+    print("Number of Customers who have license,response and vehicle is good in condition :  " , a.count())
+    print()
+    while True:
+        inp=int(input("Enter the number of customers you want to view from above count : "))
+        if inp<=a.count():
+            a.show(inp)
+            break
+        else:
+            print("Entern number from above count !")
+            break
+    
+
+ 
+mainmenu()
