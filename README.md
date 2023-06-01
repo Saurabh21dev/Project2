@@ -40,5 +40,5 @@ demographics (gender, age, region code type), Vehicles (Vehicle Age, Damage), Po
 5.Identify the customers who are able to get insurance and who are not
 
 ### CONTRIBUTORS :
-1.Saurabh Dhatrak
-2.Amera Ramkrishna  
+**1.Saurabh Dhatrak
+**2.Amera Ramkrishna  
