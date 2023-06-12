@@ -39,6 +39,3 @@ demographics (gender, age, region code type), Vehicles (Vehicle Age, Damage), Po
 4.To increase customer engagement rate and conversion rate.
 5.Identify the customers who are able to get insurance and who are not
 
-### CONTRIBUTORS :
-1.Saurabh Dhatrak 
-2.Amera Ramkrishna  
